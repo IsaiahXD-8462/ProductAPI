@@ -5,8 +5,15 @@ from .models import Product
 
 @api_view(['GET'])
 def products_list(request):
-    products = Product.objects.all()
     
-    serializer = ProductSerializer(products, many=True)
-
-    return Response(serializer.data)
+    if request.method == 'GET':
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid() == True:
+            serializer.save()
+            return Response(serializer.data, status=201)
+        else:
+            return Response(serializer.errors, status=400)
